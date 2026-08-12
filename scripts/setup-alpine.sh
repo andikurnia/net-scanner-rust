@@ -32,7 +32,11 @@ echo "==> Alpine Linux detected"
 [ "$(id -u)" -eq 0 ] || die "Please run as root (e.g. sudo $0 ...)"
 
 # --- Binary ---------------------------------------------------------------
-if [ -n "$BIN_SRC" ] && [ -f "$BIN_SRC" ]; then
+RELEASE_BIN="./target/release/net-scanner"
+if [ -x "$RELEASE_BIN" ]; then
+    echo "==> Installing binary from $RELEASE_BIN"
+    install -m 0755 "$RELEASE_BIN" "$INSTALL_BIN"
+elif [ -n "$BIN_SRC" ] && [ -f "$BIN_SRC" ]; then
     echo "==> Installing binary from $BIN_SRC"
     install -m 0755 "$BIN_SRC" "$INSTALL_BIN"
 elif [ -x "$INSTALL_BIN" ]; then
