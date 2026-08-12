@@ -1,0 +1,28 @@
+# net-monitor configuration
+# All keys are optional; every value can also be overridden via CLI flags.
+
+# Web server bind address
+bind = "127.0.0.1:8080"
+
+# Seconds between automatic scans
+scan_interval_secs = 10
+
+# Scan method: "auto" (ARP when privileged, else TCP), "arp", or "tcp"
+method = "auto"
+
+# Per-host probe timeout in milliseconds (LAN hosts answer in ~1ms)
+timeout_ms = 100
+
+# Max concurrent probes during TCP/ICMP scanning
+concurrency = 256
+
+# Ports tried during the TCP probe; an IP with any open port is "used"
+ports = [22, 53, 80, 111, 123, 135, 139, 443, 445, 631, 993, 3389, 5900, 8080, 8443, 9100]
+
+# Fingerprint the OS of used hosts (ICMP TTL + open ports). Needs root for the
+# TTL probe; without it, port fingerprints are still used.
+detect_os = true
+
+# Subnets to scan, in CIDR form. If empty, the main LAN (the interface
+# holding the default route) is detected automatically.
+subnets = ["192.168.100.0/24"]

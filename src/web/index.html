@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Net Monitor - LAN IP Scanner</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">&#128225;</span>
+      <div>
+        <h1>Net Monitor</h1>
+        <p class="sub">Local network IP scanner</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span id="statusPill" class="pill idle">starting&#8230;</span>
+      <button id="scanBtn" class="btn" title="Run a scan now">Scan now</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stats" aria-label="Network summary">
+      <div class="card total"><div class="card-label">Total IPs</div><div class="card-value" id="statTotal">0</div></div>
+      <div class="card used"><div class="card-label">Used</div><div class="card-value" id="statUsed">0</div></div>
+      <div class="card available"><div class="card-label">Available</div><div class="card-value" id="statAvail">0</div></div>
+      <div class="card meta">
+        <div class="card-label">Last scan</div>
+        <div class="card-value" id="statLast">never</div>
+        <div class="card-sub" id="statMeta">-</div>
+      </div>
+    </section>
+
+    <section id="errorBanner" class="error-banner hidden"></section>
+
+    <section class="progress-wrap">
+      <div class="progress-label"><span id="phaseLabel">idle</span><span id="progressText"></span></div>
+      <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+    </section>
+
+    <section class="subnet-bar" id="subnetBar" aria-label="Subnets"></section>
+
+    <section class="grid-section">
+      <div class="grid-head">
+        <h2 id="gridTitle">Hosts</h2>
+        <div class="grid-controls">
+          <div class="legend">
+            <span class="legend-item"><span class="swatch used"></span>Used</span>
+            <span class="legend-item"><span class="swatch available"></span>Available</span>
+            <span class="legend-item"><span class="swatch self"></span>This host</span>
+          </div>
+          <div class="filter-bar" role="group" aria-label="Filter hosts">
+            <span class="filter-label">Filter</span>
+            <label class="filter-chip"><input type="checkbox" id="filterUsed" /> Used</label>
+            <label class="filter-chip"><input type="checkbox" id="filterAvailable" /> Available</label>
+            <button id="filterClear" class="filter-clear" type="button" title="Show all hosts">All</button>
+          </div>
+          <div class="view-toggle" role="group" aria-label="View mode">
+            <button id="viewGrid" class="view-btn active" type="button">Grid</button>
+            <button id="viewList" class="view-btn" type="button">List</button>
+          </div>
+        </div>
+      </div>
+      <div id="grid" class="grid"></div>
+      <div id="pager" class="pager"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Click a host for details &middot; auto-refreshes every 3s</p>
+  </footer>
+
+  <div id="detailModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <button id="modalClose" class="modal-close" aria-label="Close">&times;</button>
+      <h3 id="modalTitle"></h3>
+      <dl id="modalBody"></dl>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

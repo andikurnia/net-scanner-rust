@@ -1,0 +1,24 @@
+[package]
+name = "net-monitor"
+version = "0.1.0"
+edition = "2021"
+description = "Periodically scans local network IPs and shows used vs available addresses in a web UI"
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+clap = { version = "4", features = ["derive"] }
+toml = "0.8"
+ipnetwork = "0.20"
+pnet = "0.35"
+libc = "0.2"
+surge-ping = "0.9"
+dns-lookup = "3"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+lto = true
+strip = true
