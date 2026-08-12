@@ -3,25 +3,52 @@
 # All settings are passed to the app as command-line parameters (no config file).
 #
 # Usage:
-#   sudo ./setup-alpine.sh ./net-scanner    # install a pre-built musl binary
-#   sudo ./setup-alpine.sh                  # build from ./ source (run from repo root)
+#   sudo ./setup-alpine.sh [OPTIONS] [BINARY]
+#
+# Options (overridable, defaults shown):
+#   --bind=HOST:PORT      web UI bind address         (default 0.0.0.0:8080)
+#   --subnets=CIDR        subnet to scan, repeatable  (default: auto-detect main LAN)
+#   --interval=SECS       seconds between scans       (default 10)
+#   --method=auto|arp|tcp scan method                 (default auto)
+#   -h, --help            show this help
+#
+# BINARY: path to a pre-built musl binary (default: ./target/release/net-scanner).
 # Aborts unless the host is Alpine Linux.
 
 set -eu
 
-# --- Settings (edit these) -------------------------------------------------
+# --- Defaults ---------------------------------------------------------------
 BIND="0.0.0.0:8080"
-SUBNETS="192.168.100.0/24"      # space-separated CIDRs; empty = auto-detect
+SUBNETS=""
 INTERVAL="10"
 METHOD="auto"
-# ---------------------------------------------------------------------------
+BIN_SRC=""
 
-BIN_SRC="${1:-}"
 INSTALL_BIN="/usr/local/bin/net-scanner"
 INIT="/etc/init.d/net-scanner"
 LOG="/var/log/net-scanner.log"
 
 die() { echo "ERROR: $*" >&2; exit 1; }
+
+usage() {
+    awk 'NR >= 2 && /^#/ { sub(/^# ?/, ""); print; next }
+         NR >= 2 { exit }' "$0"
+    exit 0
+}
+
+# --- Parse CLI flags ---------------------------------------------------------
+for arg in "$@"; do
+    case "$arg" in
+        --bind=*)      BIND="${arg#--bind=}" ;;
+        --subnets=*)   SUBNETS="$SUBNETS ${arg#--subnets=}" ;;
+        --interval=*)  INTERVAL="${arg#--interval=}" ;;
+        --method=*)    METHOD="${arg#--method=}" ;;
+        -h|--help)     usage ;;
+        -*)            die "Unknown option: $arg (see --help)" ;;
+        *)             BIN_SRC="$arg" ;;
+    esac
+done
+SUBNETS="${SUBNETS# }"
 
 is_alpine=0
 [ -f /etc/alpine-release ] && is_alpine=1
@@ -89,13 +116,14 @@ rc-service net-scanner restart
 sleep 2
 
 rc-service net-scanner status || true
+PORT="${BIND##*:}"
 if command -v curl >/dev/null 2>&1; then
-    ok=$(curl -fsS http://127.0.0.1:8080/api/health >/dev/null 2>&1 && echo yes || echo no)
+    ok=$(curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1 && echo yes || echo no)
 else
-    ok=$(wget -q -O /dev/null http://127.0.0.1:8080/api/health && echo yes || echo no)
+    ok=$(wget -q -O /dev/null "http://127.0.0.1:$PORT/api/health" && echo yes || echo no)
 fi
 if [ "$ok" = yes ]; then
-    echo "OK: net-scanner is running. Open http://<server-ip>:8080"
+    echo "OK: net-scanner is running. Open http://<server-ip>:$PORT"
 else
     echo "WARNING: health check failed — see $LOG" >&2
 fi
