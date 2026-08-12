@@ -1,18 +1,25 @@
 #!/bin/sh
 # setup-alpine.sh — install net-scanner as a background OpenRC service on Alpine Linux.
+# All settings are passed to the app as command-line parameters (no config file).
+#
 # Usage:
-#   sudo ./setup-alpine.sh                  # build from ./ source (run from repo root)
 #   sudo ./setup-alpine.sh ./net-scanner    # install a pre-built musl binary
+#   sudo ./setup-alpine.sh                  # build from ./ source (run from repo root)
 # Aborts unless the host is Alpine Linux.
 
 set -eu
 
+# --- Settings (edit these) -------------------------------------------------
+BIND="0.0.0.0:8080"
+SUBNETS="192.168.100.0/24"      # space-separated CIDRs; empty = auto-detect
+INTERVAL="10"
+METHOD="auto"
+# ---------------------------------------------------------------------------
+
 BIN_SRC="${1:-}"
 INSTALL_BIN="/usr/local/bin/net-scanner"
-CONF="/etc/net-scanner.toml"
 INIT="/etc/init.d/net-scanner"
 LOG="/var/log/net-scanner.log"
-LOGROTATE="/etc/logrotate.d/net-scanner"
 
 die() { echo "ERROR: $*" >&2; exit 1; }
 
@@ -24,8 +31,9 @@ echo "==> Alpine Linux detected"
 
 [ "$(id -u)" -eq 0 ] || die "Please run as root (e.g. sudo $0 ...)"
 
+# --- Binary ---------------------------------------------------------------
 if [ -n "$BIN_SRC" ] && [ -f "$BIN_SRC" ]; then
-    echo "==> Installing pre-built binary from $BIN_SRC"
+    echo "==> Installing binary from $BIN_SRC"
     install -m 0755 "$BIN_SRC" "$INSTALL_BIN"
 elif [ -x "$INSTALL_BIN" ]; then
     echo "==> Using existing binary at $INSTALL_BIN"
@@ -42,31 +50,24 @@ fi
 "$INSTALL_BIN" --version >/dev/null 2>&1 \
     || die "Installed binary does not run here (wrong libc/arch?)."
 
-cat > "$CONF" <<'EOF'
-# net-scanner configuration (managed by setup-alpine.sh)
-bind = "0.0.0.0:8080"
-scan_interval_secs = 10
-method = "auto"
-timeout_ms = 100
-concurrency = 256
-ports = [22, 53, 80, 111, 123, 135, 139, 443, 445, 631, 993, 3389, 5900, 8080, 8443, 9100]
-detect_os = true
-# Leave empty to auto-detect the main LAN, or list explicit CIDRs:
-# subnets = ["192.168.1.0/24"]
-EOF
-echo "==> Wrote $CONF"
+# --- Build parameter list ---------------------------------------------------
+ARGS="--bind $BIND --interval $INTERVAL --method $METHOD"
+for s in $SUBNETS; do
+    ARGS="$ARGS --subnet $s"
+done
 
-cat > "$INIT" <<'EOF'
+# --- Init script -------------------------------------------------------------
+cat > "$INIT" <<EOF
 #!/sbin/openrc-run
 
 description="LAN IP scanner with a web UI"
 supervisor="supervise-daemon"
-command="/usr/local/bin/net-scanner"
-command_args="--config /etc/net-scanner.toml"
+command="$INSTALL_BIN"
+command_args="$ARGS"
 command_user="root"
-pidfile="/run/${RC_SVCNAME}.pid"
-output_log="/var/log/net-scanner.log"
-error_log="/var/log/net-scanner.log"
+pidfile="/run/\${RC_SVCNAME}.pid"
+output_log="$LOG"
+error_log="$LOG"
 respawn_delay=5
 
 depend() {
@@ -77,21 +78,7 @@ EOF
 chmod +x "$INIT"
 echo "==> Wrote $INIT"
 
-if command -v logrotate >/dev/null 2>&1 || apk add --no-cache logrotate; then
-    cat > "$LOGROTATE" <<'EOF'
-/var/log/net-scanner.log {
-    daily
-    rotate 7
-    compress
-    delaycompress
-    missingok
-    notifempty
-    copytruncate
-}
-EOF
-    echo "==> Wrote $LOGROTATE"
-fi
-
+# --- Enable + start ------------------------------------------------------------
 command -v rc-service >/dev/null 2>&1 || apk add --no-cache openrc
 rc-update add net-scanner default 2>/dev/null || true
 rc-service net-scanner restart
