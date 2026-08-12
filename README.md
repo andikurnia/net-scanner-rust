@@ -22,7 +22,7 @@ serves the results over HTTP.
 
 ## Screenshot
 
-![Net Scanner dashboard](screenshots/dashboard.png)
+![Net Scanner dashboard](screenshots/screenshot.jpeg)
 
 ## Build & run
 
