@@ -22,6 +22,9 @@ serves the results over HTTP.
 
 ## Build & run
 
+Requires a Rust toolchain. Install it with [rustup](https://rustup.rs/) (see also
+the [official installation guide](https://www.rust-lang.org/tools/install)), then:
+
 ```bash
 cargo build --release
 ```
