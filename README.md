@@ -20,6 +20,10 @@ serves the results over HTTP.
 - Live stats (used / available / total), progress bar, per-subnet tabs
 - Multiple subnets, configurable via `config.toml` or CLI flags
 
+## Screenshot
+
+![Net Scanner dashboard](screenshots/dashboard.png)
+
 ## Build & run
 
 Requires a Rust toolchain. Install it with [rustup](https://rustup.rs/) (see also
