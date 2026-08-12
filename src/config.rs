@@ -7,7 +7,7 @@ use serde::Deserialize;
 use crate::netinfo;
 
 #[derive(Debug, Clone, Parser)]
-#[command(name = "net-monitor", version, about = "LAN IP scanner with a web UI")]
+#[command(name = "net-scanner", version, about = "LAN IP scanner with a web UI")]
 pub struct Cli {
     /// Path to a TOML config file (defaults to ./config.toml if present)
     #[arg(long)]

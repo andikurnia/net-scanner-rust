@@ -11,15 +11,15 @@ let page = 0;
 const PAGE_SIZES = [25, 50, 100, 250, 500];
 
 try {
-  view = localStorage.getItem("net-monitor-view") || "grid";
-  const saved = JSON.parse(localStorage.getItem("net-monitor-filters") || "null");
+  view = localStorage.getItem("net-scanner-view") || "grid";
+  const saved = JSON.parse(localStorage.getItem("net-scanner-filters") || "null");
   if (saved) filters = { used: !!saved.used, available: !!saved.available };
-  const ps = parseInt(localStorage.getItem("net-monitor-page-size") || "50", 10);
+  const ps = parseInt(localStorage.getItem("net-scanner-page-size") || "50", 10);
   if (PAGE_SIZES.includes(ps)) pageSize = ps;
 } catch (_) { /* storage unavailable */ }
 
 function saveFilters() {
-  try { localStorage.setItem("net-monitor-filters", JSON.stringify(filters)); } catch (_) {}
+  try { localStorage.setItem("net-scanner-filters", JSON.stringify(filters)); } catch (_) {}
 }
 
 const LIST_COLUMNS = [
@@ -68,7 +68,7 @@ function sortedHosts(hosts) {
 }
 
 try {
-  view = localStorage.getItem("net-monitor-view") || "grid";
+  view = localStorage.getItem("net-scanner-view") || "grid";
 } catch (_) { /* storage unavailable */ }
 
 const $ = (id) => document.getElementById(id);
@@ -270,7 +270,7 @@ function renderPager(total, totalPages) {
   $("pageSizeSel").addEventListener("change", (e) => {
     pageSize = Number(e.target.value);
     page = 0;
-    try { localStorage.setItem("net-monitor-page-size", String(pageSize)); } catch (_) {}
+    try { localStorage.setItem("net-scanner-page-size", String(pageSize)); } catch (_) {}
     renderGrid();
   });
 }
@@ -357,13 +357,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("viewGrid").addEventListener("click", () => {
     view = "grid";
-    try { localStorage.setItem("net-monitor-view", view); } catch (_) {}
+    try { localStorage.setItem("net-scanner-view", view); } catch (_) {}
     renderViewToggle();
     renderGrid();
   });
   $("viewList").addEventListener("click", () => {
     view = "list";
-    try { localStorage.setItem("net-monitor-view", view); } catch (_) {}
+    try { localStorage.setItem("net-scanner-view", view); } catch (_) {}
     renderViewToggle();
     renderGrid();
   });

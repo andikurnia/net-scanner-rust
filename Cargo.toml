@@ -1,5 +1,5 @@
 [package]
-name = "net-monitor"
+name = "net-scanner"
 version = "0.1.0"
 edition = "2021"
 description = "Periodically scans local network IPs and shows used vs available addresses in a web UI"

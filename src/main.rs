@@ -26,7 +26,7 @@ async fn main() {
     };
     let cfg = Arc::new(cfg);
 
-    println!("net-monitor");
+    println!("net-scanner");
     println!("  subnets:  {}", subnets.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(", "));
     println!("  method:   {:?}", cfg.method);
     println!("  interval: {}s", cfg.scan_interval_secs);

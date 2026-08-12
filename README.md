@@ -1,4 +1,4 @@
-# net-monitor
+# net-scanner
 
 Scans the local network and shows **used** vs **available** IP addresses in a
 clean web UI. A Rust backend periodically probes every address in your LAN and
@@ -29,13 +29,13 @@ cargo build --release
 Run unprivileged (TCP probe; no root needed):
 
 ```bash
-./target/release/net-monitor
+./target/release/net-scanner
 ```
 
 Run privileged for full ARP results (MAC + vendor):
 
 ```bash
-sudo ./target/release/net-monitor
+sudo ./target/release/net-scanner
 ```
 
 Open http://127.0.0.1:8080
@@ -60,11 +60,11 @@ All options can be given via CLI flags or `config.toml`:
 
 ```bash
 # scan two subnets every 15 seconds, listen on all interfaces
-./target/release/net-monitor --subnet 192.168.1.0/24 --subnet 10.0.0.0/24 \
+./target/release/net-scanner --subnet 192.168.1.0/24 --subnet 10.0.0.0/24 \
   --interval 15 --bind 0.0.0.0:8080
 
 # custom config file
-./target/release/net-monitor --config /etc/net-monitor.toml
+./target/release/net-scanner --config /etc/net-scanner.toml
 ```
 
 ## How it decides "used"

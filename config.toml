@@ -1,4 +1,4 @@
-# net-monitor configuration
+# net-scanner configuration
 # All keys are optional; every value can also be overridden via CLI flags.
 
 # Web server bind address
