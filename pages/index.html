@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Net Scanner &middot; LAN IP Scanner</title>
+  <meta name="description" content="Net Scanner - a fast LAN IP scanner with a web UI. Find used vs available addresses, detect OS, and get MAC vendor + hostname info." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%2322c55e'/%3E%3Ccircle cx='8' cy='8' r='3.5' fill='%230f1117'/%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: { DEFAULT: "#4f8cff", soft: "#1c212d" },
+            used: "#22c55e",
+            avail: "#313a4c",
+            self: "#eab308",
+          },
+          fontFamily: {
+            sans: ["ui-sans-serif", "system-ui", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+            mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .code {
+      background: #10131a;
+      border: 1px solid #232a38;
+      border-radius: 0.5rem;
+      color: #d7dce6;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .code .cmt { color: #5b6472; }
+    .kbd {
+      background: #1c212d;
+      border: 1px solid #2a3140;
+      border-radius: 0.375rem;
+      color: #e6e9f0;
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.45rem;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-200 antialiased">
+
+  <!-- Nav -->
+  <nav class="sticky top-0 z-50 bg-slate-950/90 backdrop-blur border-b border-slate-800">
+    <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
+      <a href="#top" class="flex items-center gap-2 text-sm font-semibold text-slate-100">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+        Net Scanner
+      </a>
+      <div class="hidden sm:flex items-center gap-5 text-sm text-slate-400">
+        <a href="#features" class="hover:text-white transition">Features</a>
+        <a href="#install" class="hover:text-white transition">Install</a>
+        <a href="#usage" class="hover:text-white transition">Usage</a>
+        <a href="#config" class="hover:text-white transition">Config</a>
+        <a href="#api" class="hover:text-white transition">API</a>
+        <a href="#support" class="hover:text-white transition">Support</a>
+      </div>
+      <a href="https://github.com/andikurnia/net-scanner-rust"
+         target="_blank" rel="noopener"
+         class="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 transition">
+        GitHub
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header id="top" class="relative overflow-hidden">
+    <div class="pointer-events-none absolute -top-40 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl"></div>
+    <div class="mx-auto max-w-6xl px-4 pt-16 pb-12 text-center">
+      <span class="inline-block rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs text-slate-400 mb-6">Open-source &middot; Rust</span>
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight">
+        Scan your LAN, <span class="text-accent">see who's online</span>
+      </h1>
+      <p class="mx-auto mt-5 max-w-2xl text-base sm:text-lg text-slate-400">
+        Net Scanner periodically probes every address in your network and shows
+        <span class="text-emerald-400">used</span> vs <span class="text-slate-300">available</span> IPs
+        in a clean, responsive web UI &mdash; with MAC vendors, hostnames and OS fingerprinting.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="#install"
+           class="w-full sm:w-auto rounded-lg bg-accent px-6 py-3 font-medium text-white hover:bg-blue-500 transition">Get started</a>
+        <a href="#usage"
+           class="w-full sm:w-auto rounded-lg border border-slate-700 bg-slate-900 px-6 py-3 font-medium text-slate-200 hover:border-slate-500 transition">View usage</a>
+      </div>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-500">
+        <span>Scan every <b class="text-slate-300">10s</b></span>
+        <span class="hidden sm:inline">&#183;</span>
+        <span>Zero config on your LAN</span>
+        <span class="hidden sm:inline">&#183;</span>
+        <span>Web UI included</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Screenshot -->
+  <section class="mx-auto max-w-6xl px-4 pb-16">
+    <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-2 sm:p-3 shadow-2xl">
+      <img src="screenshot.jpeg" alt="Net Scanner dashboard" class="w-full rounded-xl border border-slate-800" loading="lazy" />
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="mx-auto max-w-6xl px-4 py-14">
+    <h2 class="text-2xl sm:text-3xl font-bold text-white">Features</h2>
+    <p class="mt-2 text-slate-400">Everything you need to keep track of your local network.</p>
+    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+        <div class="text-2xl">&#128200;</div>
+        <h3 class="mt-3 font-semibold text-white">Live used / available map</h3>
+        <p class="mt-1 text-sm text-slate-400">Every IP is probed and colour-coded. Green means in use, grey is free, yellow marks your own machine.</p>
+      </div>
+      <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+        <div class="text-2xl">&#128241;</div>
+        <h3 class="mt-3 font-semibold text-white">Host details</h3>
+        <p class="mt-1 text-sm text-slate-400">Click any host to see MAC address, vendor (OUI lookup), reverse-DNS hostname, response time and OS.</p>
+      </div>
+      <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+        <div class="text-2xl">&#128421;&#65039;</div>
+        <h3 class="mt-3 font-semibold text-white">OS fingerprinting</h3>
+        <p class="mt-1 text-sm text-slate-400">Windows, Apple, Linux/Unix, printers and routers are guessed from ICMP TTL plus open TCP ports.</p>
+      </div>
+      <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+        <div class="text-2xl">&#128274;</div>
+        <h3 class="mt-3 font-semibold text-white">ARP scanning</h3>
+        <p class="mt-1 text-sm text-slate-400">Run with <span class="kbd">sudo</span> to get instant ARP results with MAC + vendor. Falls back to TCP/ICMP without privileges.</p>
+      </div>
+      <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+        <div class="text-2xl">&#128269;</div>
+        <h3 class="mt-3 font-semibold text-white">Filter, sort &amp; page</h3>
+        <p class="mt-1 text-sm text-slate-400">Grid or list view, used/available filters, sortable columns and pagination with configurable page size.</p>
+      </div>
+      <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+        <div class="text-2xl">&#128260;</div>
+        <h3 class="mt-3 font-semibold text-white">Multiple subnets</h3>
+        <p class="mt-1 text-sm text-slate-400">Scan several subnets at once and switch between them with per-subnet tabs in the UI.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install" class="border-t border-slate-800 bg-slate-900/40">
+    <div class="mx-auto max-w-6xl px-4 py-14">
+      <h2 class="text-2xl sm:text-3xl font-bold text-white">Install &amp; run</h2>
+      <p class="mt-2 text-slate-400">Requires a Rust toolchain &mdash; install it with
+        <a href="https://rustup.rs/" target="_blank" rel="noopener" class="text-accent hover:underline">rustup</a>.</p>
+
+      <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="rounded-xl border border-slate-800 bg-slate-950 p-5">
+          <h3 class="font-semibold text-white">Build</h3>
+          <pre class="code mt-3">git clone git@github.com:andikurnia/net-scanner-rust.git
+cd net-scanner-rust
+cargo build --release</pre>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-slate-950 p-5">
+          <h3 class="font-semibold text-white">Run (no root needed)</h3>
+          <pre class="code mt-3">./target/release/net-scanner</pre>
+          <p class="mt-3 text-sm text-slate-400">Uses ICMP + TCP probes. Open the web UI at
+            <code class="text-accent">http://127.0.0.1:8080</code>.</p>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border border-slate-800 bg-slate-950 p-5">
+        <h3 class="font-semibold text-white">Run with full ARP results</h3>
+        <pre class="code mt-3">sudo ./target/release/net-scanner</pre>
+        <p class="mt-3 text-sm text-slate-400">
+          With root / <span class="kbd">CAP_NET_RAW</span> the scanner uses ARP, giving you
+          MAC addresses and vendors for every used host, and enables the TTL-based OS probe.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Usage / Web UI -->
+  <section id="usage" class="mx-auto max-w-6xl px-4 py-14">
+    <h2 class="text-2xl sm:text-3xl font-bold text-white">Using the web UI</h2>
+    <p class="mt-2 text-slate-400">A quick tour of the dashboard.</p>
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+      <div>
+        <h3 class="font-semibold text-white">Overview</h3>
+        <ul class="mt-3 space-y-3 text-sm text-slate-400">
+          <li class="pl-1"><span class="text-emerald-400">&#8226;</span>&nbsp; The status cards show total IPs, used and available addresses, and the last scan time.</li>
+          <li class="pl-1"><span class="text-emerald-400">&#8226;</span>&nbsp; The grid renders one tile per IP &mdash; <b class="text-emerald-400">green</b> used, <b class="text-slate-300">grey</b> available, <b class="text-yellow-400">yellow</b> this machine.</li>
+          <li class="pl-1"><span class="text-emerald-400">&#8226;</span>&nbsp; Switch between <b class="text-white">Grid</b> and <b class="text-white">List</b> views. In list view every column is sortable.</li>
+          <li class="pl-1"><span class="text-emerald-400">&#8226;</span>&nbsp; Use the <b class="text-white">Used / Available</b> filter chips to narrow the results, then hit <b class="text-white">All</b> to reset.</li>
+          <li class="pl-1"><span class="text-emerald-400">&#8226;</span>&nbsp; Navigate results with the pager and pick a page size (25&ndash;500 per page).</li>
+          <li class="pl-1"><span class="text-emerald-400">&#8226;</span>&nbsp; Click any used host to open its detail panel (MAC, vendor, OS, hostname, RTT).</li>
+          <li class="pl-1"><span class="text-emerald-400">&#8226;</span>&nbsp; The footer lets you choose how often the page syncs with the backend (Off, 1s &ndash; 60s).</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold text-white">Trigger a scan</h3>
+        <p class="mt-3 text-sm text-slate-400">
+          Scans run automatically every 10 seconds. Need a fresh scan right now?
+          Press <b class="text-white">Scan now</b> in the top bar &mdash; or call the API:
+        </p>
+        <pre class="code mt-3">curl -X POST http://127.0.0.1:8080/api/scan</pre>
+        <h3 class="mt-6 font-semibold text-white">Config quick reference</h3>
+        <p class="mt-3 text-sm text-slate-400">
+          Everything lives in <code class="text-accent">config.toml</code> and can be overridden with
+          CLI flags (e.g. <code class="text-accent">--subnet 10.0.0.0/24</code>,
+          <code class="text-accent">--interval 15</code>).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Config table -->
+  <section id="config" class="border-t border-slate-800 bg-slate-900/40">
+    <div class="mx-auto max-w-6xl px-4 py-14">
+      <h2 class="text-2xl sm:text-3xl font-bold text-white">Configuration</h2>
+      <p class="mt-2 text-slate-400">All options can be given via CLI flags or <code class="text-accent">config.toml</code>.</p>
+      <div class="mt-8 overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full min-w-[42rem] text-left text-sm">
+          <thead class="bg-slate-900 text-slate-400">
+            <tr>
+              <th class="px-4 py-3 font-medium">Option</th>
+              <th class="px-4 py-3 font-medium">CLI</th>
+              <th class="px-4 py-3 font-medium">Default</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 text-slate-300">
+            <tr><td class="px-4 py-3">Web bind address</td><td class="px-4 py-3 font-mono text-xs">--bind 0.0.0.0:8080</td><td class="px-4 py-3">127.0.0.1:8080</td></tr>
+            <tr class="bg-slate-900/40"><td class="px-4 py-3">Scan interval</td><td class="px-4 py-3 font-mono text-xs">--interval 60</td><td class="px-4 py-3">10 seconds</td></tr>
+            <tr><td class="px-4 py-3">Scan method</td><td class="px-4 py-3 font-mono text-xs">--method auto|arp|tcp</td><td class="px-4 py-3">auto</td></tr>
+            <tr class="bg-slate-900/40"><td class="px-4 py-3">Probe timeout</td><td class="px-4 py-3 font-mono text-xs">--timeout-ms 500</td><td class="px-4 py-3">100 ms</td></tr>
+            <tr><td class="px-4 py-3">Concurrency</td><td class="px-4 py-3 font-mono text-xs">--concurrency 512</td><td class="px-4 py-3">256</td></tr>
+            <tr class="bg-slate-900/40"><td class="px-4 py-3">Subnets</td><td class="px-4 py-3 font-mono text-xs">--subnet 10.0.0.0/24</td><td class="px-4 py-3">auto-detect main LAN</td></tr>
+            <tr><td class="px-4 py-3">OS detection</td><td class="px-4 py-3 font-mono text-xs">--detect-os false</td><td class="px-4 py-3">true</td></tr>
+            <tr class="bg-slate-900/40"><td class="px-4 py-3">Probe ports</td><td class="px-4 py-3 font-mono text-xs">ports = [...]</td><td class="px-4 py-3">22, 53, 80, 445, ...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="rounded-xl border border-slate-800 bg-slate-950 p-5">
+          <h3 class="font-semibold text-white">How it decides "used"</h3>
+          <ol class="mt-3 list-decimal list-inside space-y-2 text-sm text-slate-400">
+            <li><b class="text-white">ARP</b> &mdash; any reply means the address is in use (needs root).</li>
+            <li><b class="text-white">TCP + ICMP</b> &mdash; any open port, or a ping reply, marks the host used.</li>
+          </ol>
+          <p class="mt-3 text-sm text-slate-400">Your own machine is always counted as used.</p>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-slate-950 p-5">
+          <h3 class="font-semibold text-white">How the OS is guessed</h3>
+          <ol class="mt-3 list-decimal list-inside space-y-2 text-sm text-slate-400">
+            <li><b class="text-white">TTL</b> of the ICMP reply &mdash; Unix &asymp; 64, Windows &asymp; 128, routers &asymp; 255.</li>
+            <li><b class="text-white">Open ports</b> &mdash; 445/3389 &rarr; Windows, 62078/7000 &rarr; Apple, 22/631 &rarr; Unix, 9100 &rarr; printer.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- API -->
+  <section id="api" class="mx-auto max-w-6xl px-4 py-14">
+    <h2 class="text-2xl sm:text-3xl font-bold text-white">HTTP API</h2>
+    <p class="mt-2 text-slate-400">The backend exposes a tiny JSON API, handy for scripting and monitoring.</p>
+    <div class="mt-8 overflow-x-auto rounded-xl border border-slate-800">
+      <table class="w-full min-w-[30rem] text-left text-sm">
+        <thead class="bg-slate-900 text-slate-400">
+          <tr>
+            <th class="px-4 py-3 font-medium">Method</th>
+            <th class="px-4 py-3 font-medium">Path</th>
+            <th class="px-4 py-3 font-medium">Description</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800 text-slate-300">
+          <tr><td class="px-4 py-3 font-mono text-xs text-accent">GET</td><td class="px-4 py-3 font-mono text-xs">/</td><td class="px-4 py-3">Web UI</td></tr>
+          <tr class="bg-slate-900/40"><td class="px-4 py-3 font-mono text-xs text-accent">GET</td><td class="px-4 py-3 font-mono text-xs">/api/state</td><td class="px-4 py-3">Current scan results (JSON)</td></tr>
+          <tr><td class="px-4 py-3 font-mono text-xs text-accent">POST</td><td class="px-4 py-3 font-mono text-xs">/api/scan</td><td class="px-4 py-3">Trigger a scan immediately</td></tr>
+          <tr class="bg-slate-900/40"><td class="px-4 py-3 font-mono text-xs text-accent">GET</td><td class="px-4 py-3 font-mono text-xs">/api/health</td><td class="px-4 py-3">Liveness check</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <pre class="code mt-6">curl http://127.0.0.1:8080/api/state | jq '.subnets[].hosts[] | select(.used) | {ip, os, vendor, hostname}'</pre>
+  </section>
+
+  <!-- Troubleshooting -->
+  <section class="border-t border-slate-800 bg-slate-900/40">
+    <div class="mx-auto max-w-6xl px-4 py-14">
+      <h2 class="text-2xl sm:text-3xl font-bold text-white">Troubleshooting</h2>
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="rounded-xl border border-slate-800 bg-slate-950 p-5">
+          <h3 class="font-semibold text-white">&quot;failed to open datalink channel&quot;</h3>
+          <p class="mt-2 text-sm text-slate-400">Run with <span class="kbd">sudo</span>, or just run without privileges to use the TCP probe mode.</p>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-slate-950 p-5">
+          <h3 class="font-semibold text-white">No subnet found</h3>
+          <p class="mt-2 text-sm text-slate-400">Pass <span class="kbd">--subnet &lt;CIDR&gt;</span> explicitly or add <code class="text-accent">subnets = ["192.168.1.0/24"]</code> to <code class="text-accent">config.toml</code>.</p>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-slate-950 p-5">
+          <h3 class="font-semibold text-white">Some hosts are missing</h3>
+          <p class="mt-2 text-sm text-slate-400">Firewalls or AP isolation can block ARP/ping between clients. Those hosts are only detected if they expose a common TCP port.</p>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-slate-950 p-5">
+          <h3 class="font-semibold text-white">OS shows as &ldquo;&ndash;&rdquo;</h3>
+          <p class="mt-2 text-sm text-slate-400">The host answered no probes we could fingerprint (e.g. it blocks ICMP and all probed ports). Run with <span class="kbd">sudo</span> for the TTL probe.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Support -->
+  <section id="support" class="mx-auto max-w-6xl px-4 py-14 text-center">
+    <h2 class="text-2xl sm:text-3xl font-bold text-white">Enjoying Net Scanner?</h2>
+    <p class="mt-3 text-slate-400">If this tool helps you out, consider a small tip.</p>
+    <a href="https://www.paypal.me/andikurnia"
+       target="_blank" rel="noopener"
+       class="mt-6 inline-flex items-center gap-2 rounded-xl bg-sky-600 px-8 py-4 font-semibold text-white hover:bg-sky-500 transition">
+      Donate via PayPal
+    </a>
+  </section>
+
+  <footer class="border-t border-slate-800">
+    <div class="mx-auto max-w-6xl px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-500">
+      <span>Net Scanner &mdash; open source on
+        <a href="https://github.com/andikurnia/net-scanner-rust" target="_blank" rel="noopener" class="text-accent hover:underline">GitHub</a>.
+      </span>
+      <span>Built with Rust &amp; Tailwind CSS.</span>
+    </div>
+  </footer>
+
+</body>
+</html>
