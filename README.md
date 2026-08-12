@@ -109,3 +109,9 @@ A weighted score picks the best label; with no signal the OS stays unknown
 - **No subnet found**: pass `--subnet <CIDR>` explicitly.
 - **Firewall / AP isolation**: some routers block ARP/ping between clients;
   those hosts may only be detected if they expose a common TCP port.
+
+## Support
+
+If you find this tool useful, consider a small tip:
+
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.me/andikurnia)
