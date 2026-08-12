@@ -69,7 +69,20 @@
   </main>
 
   <footer>
-    <p>Click a host for details &middot; auto-refreshes every 3s</p>
+    <div class="footer-inner">
+      <p>Click a host for details &middot; <span id="refreshLabel">auto-refreshes every 10s</span></p>
+      <label class="refresh-control">Sync speed
+        <select id="refreshSel">
+          <option value="0">Off</option>
+          <option value="1000">1s</option>
+          <option value="3000">3s</option>
+          <option value="5000">5s</option>
+          <option value="10000" selected>10s</option>
+          <option value="30000">30s</option>
+          <option value="60000">60s</option>
+        </select>
+      </label>
+    </div>
   </footer>
 
   <div id="detailModal" class="modal hidden" role="dialog" aria-modal="true">

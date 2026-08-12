@@ -1,5 +1,3 @@
-const REFRESH_MS = 3000;
-
 let state = null;
 let activeSubnet = 0;
 let view = "grid";
@@ -7,8 +5,19 @@ let sort = { key: "ip", dir: 1 };
 let filters = { used: false, available: false };
 let pageSize = 50;
 let page = 0;
+let refreshMs = 10000;
+let refreshTimer = null;
 
 const PAGE_SIZES = [25, 50, 100, 250, 500];
+const REFRESH_OPTIONS = [
+  { ms: 0, label: "Off" },
+  { ms: 1000, label: "1s" },
+  { ms: 3000, label: "3s" },
+  { ms: 5000, label: "5s" },
+  { ms: 10000, label: "10s" },
+  { ms: 30000, label: "30s" },
+  { ms: 60000, label: "60s" },
+];
 
 try {
   view = localStorage.getItem("net-scanner-view") || "grid";
@@ -16,10 +25,27 @@ try {
   if (saved) filters = { used: !!saved.used, available: !!saved.available };
   const ps = parseInt(localStorage.getItem("net-scanner-page-size") || "50", 10);
   if (PAGE_SIZES.includes(ps)) pageSize = ps;
+  const rm = parseInt(localStorage.getItem("net-scanner-refresh-ms") || "10000", 10);
+  if (REFRESH_OPTIONS.some((o) => o.ms === rm)) refreshMs = rm;
 } catch (_) { /* storage unavailable */ }
 
 function saveFilters() {
   try { localStorage.setItem("net-scanner-filters", JSON.stringify(filters)); } catch (_) {}
+}
+
+function applyRefreshInterval() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+  if (refreshMs > 0) {
+    const secs = refreshMs / 1000;
+    $("refreshLabel").textContent = `auto-refreshes every ${secs}s`;
+    refreshTimer = setInterval(refresh, refreshMs);
+  } else {
+    $("refreshLabel").textContent = "auto-refresh off";
+  }
+  $("refreshSel").value = String(refreshMs);
 }
 
 const LIST_COLUMNS = [
@@ -383,7 +409,12 @@ document.addEventListener("DOMContentLoaded", () => {
     renderFilterBar();
     renderGrid();
   });
+  $("refreshSel").addEventListener("change", (e) => {
+    refreshMs = Number(e.target.value);
+    try { localStorage.setItem("net-scanner-refresh-ms", String(refreshMs)); } catch (_) {}
+    applyRefreshInterval();
+  });
 
   refresh();
-  setInterval(refresh, REFRESH_MS);
+  applyRefreshInterval();
 });
